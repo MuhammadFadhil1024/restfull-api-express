@@ -1,6 +1,7 @@
 const { Users } = require('../models')
 const { comparePassword } = require('../helpers/bcrypt')
 const { generateToken } = require('../helpers/jwt')
+const { ResponseFromatter } = require('../helpers/response')
 
 class UserController {
     static async register(req, res) {
@@ -26,11 +27,13 @@ class UserController {
                 }).format(data.balance),
             }
 
-            res.status(201).json({
-                code: 201,
-                status: 'CREATED',
-                data: response,
-            })
+            // res.status(201).json({
+            //     code: 201,
+            //     status: 'CREATED',
+            //     data: response,
+            // })
+
+            return ResponseFromatter(res, 201, response)
         } catch (e) {
             if (
                 e.name === 'SequelizeValidationError' ||
@@ -57,11 +60,16 @@ class UserController {
             const { email, password } = req.body
 
             if (!email || !password) {
-                return res.status(422).json({
-                    code: 422,
-                    status: 'UNPROCESSABLE_CONTENT',
-                    error: "Email or password can't be empty!",
-                })
+                // return res.status(422).json({
+                //     code: 422,
+                //     status: 'UNPROCESSABLE_CONTENT',
+                //     error: "Email or password can't be empty!",
+                // })
+                return ResponseFromatter(
+                    res,
+                    422,
+                    "Email or password can't be empty!"
+                )
             }
 
             const user = await Users.findOne({
@@ -71,20 +79,27 @@ class UserController {
             })
 
             if (!user) {
-                return res.status(404).json({
-                    code: 404,
-                    status: 'NOT_FOUND',
-                    error: `User with email ${email} not found!`,
-                })
+                // return res.status(404).json({
+                //     code: 404,
+                //     status: 'NOT_FOUND',
+                //     error: `User with email ${email} not found!`,
+                // })
+
+                return ResponseFromatter(
+                    res,
+                    401,
+                    `User with email ${email} not found!`
+                )
             }
 
             const correctPassword = comparePassword(password, user.password)
             if (!correctPassword) {
-                return res.status(401).json({
-                    code: 401,
-                    status: 'NOT_FOUND',
-                    error: 'Incorrect password!',
-                })
+                // return res.status(401).json({
+                //     code: 401,
+                //     status: 'NOT_FOUND',
+                //     error: 'Incorrect password!',
+                // })
+                return ResponseFromatter(res, 401, 'Incorrect password!')
             }
 
             const payload = {
@@ -92,18 +107,29 @@ class UserController {
                 email: user.email,
                 role: user.role,
             }
+
             const token = generateToken(payload)
-            return res.status(200).json({
-                code: 200,
-                status: 'OK',
-                data: {
-                    id: user.id,
-                    email: user.email,
-                    role: user.role,
-                    token: token,
-                },
-            })
+            const data = {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                token: token,
+            }
+            // console.log(data)
+            // return res.status(200).json({
+            //     code: 200,
+            //     status: 'OK',
+            //     data: {
+            //         id: user.id,
+            //         email: user.email,
+            //         role: user.role,
+            //         token: token,
+            //     },
+            // })
+
+            return ResponseFromatter(res, 200, data)
         } catch (e) {
+            // console.log(e)
             if (
                 e.name === 'SequelizeValidationError' ||
                 e.name === 'SequelizeUniqueConstraintError'
@@ -144,11 +170,13 @@ class UserController {
                 fullName: user[1][0].fullName,
             }
 
-            res.status(200).json({
-                code: 200,
-                status: 'OK',
-                response: response,
-            })
+            // res.status(200).json({
+            //     code: 200,
+            //     status: 'OK',
+            //     response: response,
+            // })
+
+            return ResponseFromatter(res, 200, response)
         } catch (e) {
             if (
                 e.name === 'SequelizeValidationError' ||
@@ -167,25 +195,37 @@ class UserController {
 
     static async deleteUser(req, res) {
         try {
-            const user = await Users.destroy({
+            await Users.destroy({
                 where: {
                     id: req.userData.id,
                 },
             })
 
-            if (!user) {
-                return res.status(401).json({
-                    code: 401,
-                    status: 'NOT_FOUND',
-                    error: 'User not Found!',
-                })
-            }
+            return ResponseFromatter(
+                res,
+                200,
+                'Your account has been successfully deleted!'
+            )
 
-            res.status(200).json({
-                code: 200,
-                status: 'OK',
-                data: 'Your account has been successfully deleted!',
-            })
+            // if (!user) {
+            //     // return res.status(401).json({
+            //     //     code: 401,
+            //     //     status: 'NOT_FOUND',
+            //     //     error: 'User not Found!',
+            //     // })
+            //     return ResponseFromatter(res, 401, 'User not Found!')
+            // }
+            // return ResponseFromatter(
+            //     res,
+            //     200,
+            //     'Your account has been successfully deleted!'
+            // )
+
+            // res.status(200).json({
+            //     code: 200,
+            //     status: 'OK',
+            //     data: 'Your account has been successfully deleted!',
+            // })
         } catch (e) {
             if (
                 e.name === 'SequelizeValidationError' ||
@@ -223,11 +263,13 @@ class UserController {
                 }).format(user.balance),
             }
 
-            res.status(200).json({
-                code: 200,
-                status: 'OK',
-                data: response,
-            })
+            // res.status(200).json({
+            //     code: 200,
+            //     status: 'OK',
+            //     data: response,
+            // })
+
+            return ResponseFromatter(res, 200, response)
         } catch (e) {
             if (
                 e.name === 'SequelizeValidationError' ||
