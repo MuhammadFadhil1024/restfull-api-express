@@ -1,4 +1,4 @@
-const ResponseFromatter = (res, code, data) => {
+const ResponseFormatter = (res, code, data) => {
     switch (code) {
         case 200:
             res.status(200).json({
@@ -33,4 +33,37 @@ const ResponseFromatter = (res, code, data) => {
     }
 }
 
-module.exports = { ResponseFromatter }
+const CatchResponse = (res, e) => {
+    if (
+        e.name === 'SequelizeValidationError' ||
+        e.name === 'SequelizeUniqueConstraintError'
+    ) {
+        const validasiErorr = {}
+        e.errors.map((er) => {
+            validasiErorr[er.path] = er.message
+        })
+        return res.status(400).json({
+            code: 400,
+            status: 'BAD_REQUEST',
+            error: validasiErorr,
+        })
+    } else {
+        return res.status(500).json({ error: e })
+    }
+}
+
+// let response = {
+//     code: 200,
+//     status: 'SUCCESS',
+//     data: null,
+// }
+
+// const succesResponse = (res, code, status, data) => {
+//     return res.status(code).json({
+//         response.code: code,
+//         response.status: status,
+//         data: data,
+//     })
+// }
+
+module.exports = { ResponseFormatter, CatchResponse }

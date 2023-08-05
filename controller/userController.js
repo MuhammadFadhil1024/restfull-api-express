@@ -1,12 +1,13 @@
 const { Users } = require('../models')
 const { comparePassword } = require('../helpers/bcrypt')
 const { generateToken } = require('../helpers/jwt')
-const { ResponseFromatter } = require('../helpers/response')
+const { ResponseFormatter, CatchResponse } = require('../helpers/response')
 
 class UserController {
     static async register(req, res) {
         try {
             const { fullName, password, gender, email } = req.body
+            // console.log(fullName, '<< ini undefined')
             const data = await Users.create({
                 fullName,
                 email,
@@ -33,25 +34,27 @@ class UserController {
             //     data: response,
             // })
 
-            return ResponseFromatter(res, 201, response)
+            return ResponseFormatter(res, 201, response)
         } catch (e) {
-            if (
-                e.name === 'SequelizeValidationError' ||
-                e.name === 'SequelizeUniqueConstraintError'
-            ) {
-                const validationError = {}
-                // eslint-disable-next-line array-callback-return
-                e.errors.map((er) => {
-                    validationError[er.path] = er.message
-                })
-                return res.status(400).json({
-                    code: 400,
-                    status: 'BAD_REQUEST',
-                    error: validationError,
-                })
-            } else {
-                res.status(e?.code || 500).json(e)
-            }
+            return CatchResponse(res, e)
+
+            // if (
+            //     e.name === 'SequelizeValidationError' ||
+            //     e.name === 'SequelizeUniqueConstraintError'
+            // ) {
+            //     const validationError = {}
+            //     // eslint-disable-next-line array-callback-return
+            //     e.errors.map((er) => {
+            //         validationError[er.path] = er.message
+            //     })
+            //     return res.status(400).json({
+            //         code: 400,
+            //         status: 'BAD_REQUEST',
+            //         error: validationError,
+            //     })
+            // } else {
+            //     res.status(e?.code || 500).json(e)
+            // }
         }
     }
 
@@ -65,7 +68,7 @@ class UserController {
                 //     status: 'UNPROCESSABLE_CONTENT',
                 //     error: "Email or password can't be empty!",
                 // })
-                return ResponseFromatter(
+                return ResponseFormatter(
                     res,
                     422,
                     "Email or password can't be empty!"
@@ -85,7 +88,7 @@ class UserController {
                 //     error: `User with email ${email} not found!`,
                 // })
 
-                return ResponseFromatter(
+                return ResponseFormatter(
                     res,
                     401,
                     `User with email ${email} not found!`
@@ -99,7 +102,7 @@ class UserController {
                 //     status: 'NOT_FOUND',
                 //     error: 'Incorrect password!',
                 // })
-                return ResponseFromatter(res, 401, 'Incorrect password!')
+                return ResponseFormatter(res, 401, 'Incorrect password!')
             }
 
             const payload = {
@@ -127,21 +130,22 @@ class UserController {
             //     },
             // })
 
-            return ResponseFromatter(res, 200, data)
+            return ResponseFormatter(res, 200, data)
         } catch (e) {
             // console.log(e)
-            if (
-                e.name === 'SequelizeValidationError' ||
-                e.name === 'SequelizeUniqueConstraintError'
-            ) {
-                const validasiErorr = {}
-                e.errors.map((er) => {
-                    validasiErorr[er.path] = er.message
-                })
-                return res.status(400).json({ error: validasiErorr })
-            } else {
-                res.status(e?.code || 500).json(e)
-            }
+            return CatchResponse(res, e)
+            // if (
+            //     e.name === 'SequelizeValidationError' ||
+            //     e.name === 'SequelizeUniqueConstraintError'
+            // ) {
+            //     const validasiErorr = {}
+            //     e.errors.map((er) => {
+            //         validasiErorr[er.path] = er.message
+            //     })
+            //     return res.status(400).json({ error: validasiErorr })
+            // } else {
+            //     res.status(e?.code || 500).json(e)
+            // }
         }
     }
 
@@ -176,20 +180,21 @@ class UserController {
             //     response: response,
             // })
 
-            return ResponseFromatter(res, 200, response)
+            return ResponseFormatter(res, 200, response)
         } catch (e) {
-            if (
-                e.name === 'SequelizeValidationError' ||
-                e.name === 'SequelizeUniqueConstraintError'
-            ) {
-                const validasiErorr = {}
-                e.errors.map((er) => {
-                    validasiErorr[er.path] = er.message
-                })
-                return res.status(400).json({ error: validasiErorr })
-            } else {
-                res.status(e?.code || 500).json(e)
-            }
+            return CatchResponse(res, e)
+            // if (
+            //     e.name === 'SequelizeValidationError' ||
+            //     e.name === 'SequelizeUniqueConstraintError'
+            // ) {
+            //     const validasiErorr = {}
+            //     e.errors.map((er) => {
+            //         validasiErorr[er.path] = er.message
+            //     })
+            //     return res.status(400).json({ error: validasiErorr })
+            // } else {
+            //     res.status(e?.code || 500).json(e)
+            // }
         }
     }
 
@@ -201,7 +206,7 @@ class UserController {
                 },
             })
 
-            return ResponseFromatter(
+            return ResponseFormatter(
                 res,
                 200,
                 'Your account has been successfully deleted!'
@@ -213,9 +218,9 @@ class UserController {
             //     //     status: 'NOT_FOUND',
             //     //     error: 'User not Found!',
             //     // })
-            //     return ResponseFromatter(res, 401, 'User not Found!')
+            //     return ResponseFormatter(res, 401, 'User not Found!')
             // }
-            // return ResponseFromatter(
+            // return ResponseFormatter(
             //     res,
             //     200,
             //     'Your account has been successfully deleted!'
@@ -227,18 +232,19 @@ class UserController {
             //     data: 'Your account has been successfully deleted!',
             // })
         } catch (e) {
-            if (
-                e.name === 'SequelizeValidationError' ||
-                e.name === 'SequelizeUniqueConstraintError'
-            ) {
-                const validasiErorr = {}
-                e.errors.map((er) => {
-                    validasiErorr[er.path] = er.message
-                })
-                return res.status(400).json({ error: validasiErorr })
-            } else {
-                res.status(e?.code || 500).json(e)
-            }
+            return CatchResponse(res, e)
+            // if (
+            //     e.name === 'SequelizeValidationError' ||
+            //     e.name === 'SequelizeUniqueConstraintError'
+            // ) {
+            //     const validasiErorr = {}
+            //     e.errors.map((er) => {
+            //         validasiErorr[er.path] = er.message
+            //     })
+            //     return res.status(400).json({ error: validasiErorr })
+            // } else {
+            //     res.status(e?.code || 500).json(e)
+            // }
         }
     }
 
@@ -269,20 +275,21 @@ class UserController {
             //     data: response,
             // })
 
-            return ResponseFromatter(res, 200, response)
+            return ResponseFormatter(res, 200, response)
         } catch (e) {
-            if (
-                e.name === 'SequelizeValidationError' ||
-                e.name === 'SequelizeUniqueConstraintError'
-            ) {
-                const validasiErorr = {}
-                e.errors.map((er) => {
-                    validasiErorr[er.path] = er.message
-                })
-                return res.status(400).json({ error: validasiErorr })
-            } else {
-                res.status(e?.code || 500).json(e)
-            }
+            return CatchResponse(res, e)
+            // if (
+            //     e.name === 'SequelizeValidationError' ||
+            //     e.name === 'SequelizeUniqueConstraintError'
+            // ) {
+            //     const validasiErorr = {}
+            //     e.errors.map((er) => {
+            //         validasiErorr[er.path] = er.message
+            //     })
+            //     return res.status(400).json({ error: validasiErorr })
+            // } else {
+            //     res.status(e?.code || 500).json(e)
+            // }
         }
     }
 }
