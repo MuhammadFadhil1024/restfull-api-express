@@ -10,10 +10,6 @@ const UserData = {
     gender: 'male',
 }
 
-let token
-let userId
-// console.log(token)
-
 describe('POST /api/v1/users/register', () => {
     it('should send response with a 201 status code', async () => {
         const res = await request(app).post('/api/v1/users/register').send({
@@ -92,9 +88,7 @@ describe('POST /api/v1/users/login', () => {
 
 describe('PUT /api/v1/users/ Test update feature user', () => {
     beforeEach(async () => {
-        const registerUser = await request(app)
-            .post('/api/v1/users/register')
-            .send(UserData)
+        await request(app).post('/api/v1/users/register').send(UserData)
 
         const login = await request(app).post('/api/v1/users/login').send({
             email: 'admin@gmail.com',
@@ -132,9 +126,7 @@ describe('PUT /api/v1/users/ Test update feature user', () => {
 
 describe('PATCH /api/v1/users/topup Test for topup feature user', () => {
     beforeEach(async () => {
-        const registerUser = await request(app)
-            .post('/api/v1/users/register')
-            .send(UserData)
+        await request(app).post('/api/v1/users/register').send(UserData)
 
         const login = await request(app).post('/api/v1/users/login').send({
             email: 'admin@gmail.com',
@@ -171,9 +163,7 @@ describe('PATCH /api/v1/users/topup Test for topup feature user', () => {
 
 describe('DELETE /api/v1/users/ Test for topup feature user', () => {
     beforeEach(async () => {
-        const registerUser = await request(app)
-            .post('/api/v1/users/register')
-            .send(UserData)
+        await request(app).post('/api/v1/users/register').send(UserData)
 
         const login = await request(app).post('/api/v1/users/login').send({
             email: 'admin@gmail.com',
